@@ -1,4 +1,5 @@
 import './globals.css';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
   title: 'Letter Griddle Cookbook - Recipes & Word Puzzles',
@@ -43,7 +44,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet" 
         />
       </head>
-      <body>{children}</body>
+      <body>{children}<Analytics /></body>
     </html>
   );
 }
