@@ -1,0 +1,36 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#b45309"/>
+      <stop offset="100%" style="stop-color:#92400e"/>
+    </linearGradient>
+    <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Orange/Pancake circle -->
+  <circle cx="600" cy="220" r="140" fill="url(#orangeGradient)"/>
+  
+  <!-- Orange highlight -->
+  <ellipse cx="560" cy="180" rx="40" ry="30" fill="#fde68a" opacity="0.5"/>
+  
+  <!-- Stem -->
+  <path d="M 600 80 Q 620 60 640 70 L 635 85 Q 620 78 610 90 Z" fill="#166534"/>
+  
+  <!-- Leaf -->
+  <ellipse cx="655" cy="75" rx="25" ry="12" fill="#22c55e" transform="rotate(-30 655 75)"/>
+  
+  <!-- Bottom section -->
+  <rect y="380" width="1200" height="250" fill="#fef3c7"/>
+  
+  <!-- Title -->
+  <text x="600" y="470" font-family="Georgia, serif" font-size="72" font-weight="bold" fill="#92400e" text-anchor="middle">Cookbook</text>
+  
+  <!-- Tagline -->
+  <text x="600" y="530" font-family="Georgia, serif" font-size="32" fill="#b45309" text-anchor="middle" font-style="italic">Recipes &amp; Puzzles</text>
+</svg>
