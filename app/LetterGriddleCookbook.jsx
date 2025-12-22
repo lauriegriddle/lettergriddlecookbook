@@ -11,7 +11,7 @@ const recipes = [
     category: 'Breakfast Favorites',
     prepTime: '15 minutes',
     serves: '8-12 pancakes',
-    description: 'A classic from the Better Homes and Gardens New Cookbook - the first recipe ever posted on Lettergriddle.com.',
+    description: 'A classic from the Better Homes and Gardens New Cookbook and the first recipe ever posted on Lettergriddle.com.',
     ingredients: [
       '1¼ cups sifted all-purpose flour',
       '3 teaspoons baking powder',
