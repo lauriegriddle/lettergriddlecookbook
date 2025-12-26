@@ -1212,7 +1212,7 @@ export default function LetterGriddleCookbook() {
         .puzzle-instructions {
           text-align: center;
           font-size: 0.8rem;
-          color: #a8a29e;
+          color: #8B5A2B;
           margin-bottom: 1rem;
         }
 
