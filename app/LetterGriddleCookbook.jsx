@@ -838,7 +838,7 @@ export default function LetterGriddleCookbook() {
         }
 
         .recipe-description {
-          color: #78716c;
+          color: #b45309;
           font-style: italic;
           max-width: 600px;
           margin: 0 auto;
