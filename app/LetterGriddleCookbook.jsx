@@ -872,7 +872,7 @@ export default function LetterGriddleCookbook() {
 
         .ingredients-card h2, .instructions-card h2 {
           font-family: 'Playfair Display', Georgia, serif;
-          color: #92400e;
+          color: #b45309;
           margin-bottom: 1rem;
           font-size: 1.3rem;
         }
@@ -968,7 +968,7 @@ export default function LetterGriddleCookbook() {
         }
 
         .did-you-know h3 {
-          color: #92400e;
+          color: #b45309;
           margin-bottom: 0.75rem;
         }
 
