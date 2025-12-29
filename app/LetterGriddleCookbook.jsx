@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 
 // Recipe and puzzle data
@@ -9,7 +11,7 @@ const recipes = [
     category: 'Breakfast Favorites',
     prepTime: '15 minutes',
     serves: '8-12 pancakes',
-    description: 'A classic from the Better Homes and Gardens New Cookbook - the first recipe ever posted on Lettergriddle.com.',
+    description: 'A classic from the Better Homes and Gardens New Cookbook and the first recipe ever posted on Lettergriddle.com.',
     ingredients: [
       '1¼ cups sifted all-purpose flour',
       '3 teaspoons baking powder',
@@ -164,9 +166,21 @@ const recipes = [
   }
 ];
 
-// Generate letters for a puzzle
-function generateLetterPool(words) {
+// Generate letters for a puzzle (excluding revealed letters)
+function generateLetterPool(words, revealed) {
   const allLetters = words.join('').split('');
+  
+  // Remove revealed letters from the pool
+  revealed.forEach((rev, wordIndex) => {
+    if (rev) {
+      const letterToRemove = rev.letter;
+      const idx = allLetters.indexOf(letterToRemove);
+      if (idx !== -1) {
+        allLetters.splice(idx, 1);
+      }
+    }
+  });
+  
   // Shuffle the letters
   for (let i = allLetters.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -181,10 +195,11 @@ function LetterGriddlePuzzle({ puzzle, category }) {
   const [guesses, setGuesses] = useState(puzzle.words.map(() => []));
   const [selectedLetter, setSelectedLetter] = useState(null);
   const [completed, setCompleted] = useState(puzzle.words.map(() => false));
-  const [showHints, setShowHints] = useState(false);
+  const [revealedHints, setRevealedHints] = useState(puzzle.words.map(() => false));
+  const [activeWordIndex, setActiveWordIndex] = useState(0);
 
   useEffect(() => {
-    setLetterPool(generateLetterPool(puzzle.words));
+    setLetterPool(generateLetterPool(puzzle.words, puzzle.revealed));
     // Initialize guesses with revealed letters
     const initialGuesses = puzzle.words.map((word, wordIndex) => {
       const guess = Array(word.length).fill(null);
@@ -196,7 +211,121 @@ function LetterGriddlePuzzle({ puzzle, category }) {
     });
     setGuesses(initialGuesses);
     setCompleted(puzzle.words.map(() => false));
+    setRevealedHints(puzzle.words.map(() => false));
   }, [puzzle]);
+
+  // Keyboard handler
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const key = e.key.toUpperCase();
+      
+      // Handle letter keys A-Z
+      if (/^[A-Z]$/.test(key)) {
+        // Find the first available instance of this letter in the pool
+        const poolIndex = letterPool.findIndex((letter, idx) => letter === key);
+        if (poolIndex !== -1) {
+          // Find the first empty slot in the active word
+          const wordGuess = guesses[activeWordIndex];
+          if (!wordGuess || completed[activeWordIndex]) return;
+          
+          const emptySlotIndex = wordGuess.findIndex(g => g === null);
+          if (emptySlotIndex !== -1) {
+            placeLetterInSlot(activeWordIndex, emptySlotIndex, key, poolIndex);
+          }
+        }
+      }
+      
+      // Handle Backspace - remove last letter from active word
+      if (e.key === 'Backspace') {
+        const wordGuess = guesses[activeWordIndex];
+        if (!wordGuess || completed[activeWordIndex]) return;
+        
+        // Find the last filled non-revealed slot
+        for (let i = wordGuess.length - 1; i >= 0; i--) {
+          if (wordGuess[i] && !wordGuess[i].revealed) {
+            removeLetterFromSlot(activeWordIndex, i);
+            break;
+          }
+        }
+      }
+      
+      // Handle Arrow keys to switch active word
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        setActiveWordIndex(prev => {
+          let next = (prev + 1) % puzzle.words.length;
+          // Skip completed words
+          while (completed[next] && next !== prev) {
+            next = (next + 1) % puzzle.words.length;
+          }
+          return next;
+        });
+      }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setActiveWordIndex(prev => {
+          let next = (prev - 1 + puzzle.words.length) % puzzle.words.length;
+          // Skip completed words
+          while (completed[next] && next !== prev) {
+            next = (next - 1 + puzzle.words.length) % puzzle.words.length;
+          }
+          return next;
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [letterPool, guesses, activeWordIndex, completed, puzzle.words.length]);
+
+  const placeLetterInSlot = (wordIndex, slotIndex, letter, poolIndex) => {
+    const newGuesses = [...guesses];
+    newGuesses[wordIndex] = [...newGuesses[wordIndex]];
+    newGuesses[wordIndex][slotIndex] = { letter, poolIndex };
+    setGuesses(newGuesses);
+    
+    // Remove letter from pool
+    const newPool = [...letterPool];
+    newPool[poolIndex] = null;
+    setLetterPool(newPool);
+    setSelectedLetter(null);
+    
+    // Check if word is complete and correct
+    const wordGuess = newGuesses[wordIndex];
+    if (wordGuess.every(g => g !== null)) {
+      const guessedWord = wordGuess.map(g => g.letter).join('');
+      if (guessedWord === puzzle.words[wordIndex]) {
+        const newCompleted = [...completed];
+        newCompleted[wordIndex] = true;
+        setCompleted(newCompleted);
+        // Move to next incomplete word
+        const nextIncomplete = newCompleted.findIndex((c, i) => !c && i > wordIndex);
+        if (nextIncomplete !== -1) {
+          setActiveWordIndex(nextIncomplete);
+        } else {
+          const firstIncomplete = newCompleted.findIndex(c => !c);
+          if (firstIncomplete !== -1) {
+            setActiveWordIndex(firstIncomplete);
+          }
+        }
+      }
+    }
+  };
+
+  const removeLetterFromSlot = (wordIndex, slotIndex) => {
+    const newGuesses = [...guesses];
+    newGuesses[wordIndex] = [...newGuesses[wordIndex]];
+    const returnedLetter = newGuesses[wordIndex][slotIndex];
+    newGuesses[wordIndex][slotIndex] = null;
+    setGuesses(newGuesses);
+    
+    // Return letter to pool
+    if (returnedLetter.poolIndex !== undefined) {
+      const newPool = [...letterPool];
+      newPool[returnedLetter.poolIndex] = returnedLetter.letter;
+      setLetterPool(newPool);
+    }
+  };
 
   const shuffleLetters = () => {
     setLetterPool(prev => {
@@ -267,7 +396,7 @@ function LetterGriddlePuzzle({ puzzle, category }) {
   };
 
   const resetPuzzle = () => {
-    setLetterPool(generateLetterPool(puzzle.words));
+    setLetterPool(generateLetterPool(puzzle.words, puzzle.revealed));
     const initialGuesses = puzzle.words.map((word, wordIndex) => {
       const guess = Array(word.length).fill(null);
       const revealed = puzzle.revealed[wordIndex];
@@ -278,7 +407,17 @@ function LetterGriddlePuzzle({ puzzle, category }) {
     });
     setGuesses(initialGuesses);
     setCompleted(puzzle.words.map(() => false));
+    setRevealedHints(puzzle.words.map(() => false));
     setSelectedLetter(null);
+    setActiveWordIndex(0);
+  };
+
+  const revealHint = (wordIndex) => {
+    setRevealedHints(prev => {
+      const newHints = [...prev];
+      newHints[wordIndex] = true;
+      return newHints;
+    });
   };
 
   const allCompleted = completed.every(c => c);
@@ -296,42 +435,42 @@ function LetterGriddlePuzzle({ puzzle, category }) {
       {/* Word rows */}
       <div className="word-rows">
         {puzzle.words.map((word, wordIndex) => (
-          <div key={wordIndex} className={`word-row ${completed[wordIndex] ? 'completed' : ''}`}>
-            <div className="word-length">{word.length} Letters</div>
-            <div className="letter-slots">
-              {Array(word.length).fill(null).map((_, slotIndex) => {
-                const guess = guesses[wordIndex]?.[slotIndex];
-                return (
-                  <button
-                    key={slotIndex}
-                    className={`letter-slot ${guess ? 'filled' : ''} ${guess?.revealed ? 'revealed' : ''} ${completed[wordIndex] ? 'correct' : ''}`}
-                    onClick={() => handleSlotClick(wordIndex, slotIndex)}
-                  >
-                    {guess?.letter || ''}
-                  </button>
-                );
-              })}
+          <div 
+            key={wordIndex} 
+            className={`word-row ${completed[wordIndex] ? 'completed' : ''} ${activeWordIndex === wordIndex && !completed[wordIndex] ? 'active' : ''}`}
+            onClick={() => !completed[wordIndex] && setActiveWordIndex(wordIndex)}
+          >
+            {revealedHints[wordIndex] && !completed[wordIndex] && (
+              <div className="hint-text">{puzzle.hints[wordIndex]}</div>
+            )}
+            <div className="word-row-content">
+              <div className="word-length">{word.length} Letters</div>
+              <div className="letter-slots">
+                {Array(word.length).fill(null).map((_, slotIndex) => {
+                  const guess = guesses[wordIndex]?.[slotIndex];
+                  return (
+                    <button
+                      key={slotIndex}
+                      className={`letter-slot ${guess ? 'filled' : ''} ${guess?.revealed ? 'revealed' : ''} ${completed[wordIndex] ? 'correct' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); handleSlotClick(wordIndex, slotIndex); }}
+                    >
+                      {guess?.letter || ''}
+                    </button>
+                  );
+                })}
+              </div>
+              {!completed[wordIndex] && !revealedHints[wordIndex] && (
+                <button 
+                  className="hint-btn"
+                  onClick={(e) => { e.stopPropagation(); revealHint(wordIndex); }}
+                >
+                  Hint
+                </button>
+              )}
             </div>
-            <button 
-              className="hint-btn"
-              onClick={() => setShowHints(!showHints)}
-              title={puzzle.hints[wordIndex]}
-            >
-              Hint
-            </button>
           </div>
         ))}
       </div>
-
-      {/* Hints panel */}
-      {showHints && (
-        <div className="hints-panel">
-          <strong>Hints:</strong>
-          {puzzle.hints.map((hint, i) => (
-            <span key={i}> {i + 1}. {hint}{i < puzzle.hints.length - 1 ? ' •' : ''}</span>
-          ))}
-        </div>
-      )}
 
       {/* Letter pool */}
       <div className="letter-pool-container">
@@ -362,6 +501,8 @@ function LetterGriddlePuzzle({ puzzle, category }) {
       <div className="puzzle-instructions">
         <p>• Click a letter, then click a slot to place it</p>
         <p>• Click a filled slot to return the letter</p>
+        <p>• Desktop? Type letters directly! Use ↑↓ to switch words, Backspace to remove</p>
+        <p>• Like a good recipe, sometimes you just have to try it and see!</p>
       </div>
 
       {/* Reset button */}
@@ -369,12 +510,35 @@ function LetterGriddlePuzzle({ puzzle, category }) {
         🔄 Reset Puzzle
       </button>
 
-      {/* Completion message */}
+     {/* Completion celebration modal - full screen */}
       {allCompleted && (
-        <div className="completion-message">
-          🎉 Congratulations! You solved the puzzle! 🎉
+        <div className="completion-modal-overlay">
+          <div className="confetti-container">
+            {[...Array(40)].map((_, i) => (
+              <div 
+                key={i} 
+                className="confetti" 
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: '-20px',
+                  animationDelay: `${Math.random() * 0.5}s`,
+                  backgroundColor: ['#f59e0b', '#fbbf24', '#92400e', '#fde68a', '#d97706'][Math.floor(Math.random() * 5)]
+                }}
+              />
+            ))}
+          </div>
+          <div className="completion-modal">
+            <div className="completion-emoji">🥣🍯🥞</div>
+            <h3>Delicious!</h3>
+            <p>You solved the puzzle!</p>
+            <div className="completion-buttons">
+              <button className="completion-btn primary" onClick={resetPuzzle}>
+                🔄 Play Again
+              </button>
+            </div>
+          </div>
         </div>
-      )}
+      )} 
     </div>
   );
 }
@@ -449,7 +613,7 @@ function RecipeDetail({ recipe, onBack }) {
 
           {recipe.tip && (
             <div className="tip-card">
-              <span className="tip-icon"></span>
+              <span className="tip-icon">💡</span>
               <p>{recipe.tip}</p>
             </div>
           )}
@@ -567,8 +731,15 @@ export default function LetterGriddleCookbook() {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 1.5rem;
-          max-width: 700px;
+          max-width: 600px;
           margin: 0 auto;
+        }
+
+        @media (max-width: 500px) {
+          .recipe-grid {
+            grid-template-columns: 1fr;
+            max-width: 300px;
+          }
         }
 
         .recipe-card {
@@ -667,7 +838,7 @@ export default function LetterGriddleCookbook() {
         }
 
         .recipe-description {
-          color: #78716c;
+          color: #b45309;
           font-style: italic;
           max-width: 600px;
           margin: 0 auto;
@@ -855,16 +1026,34 @@ export default function LetterGriddleCookbook() {
           background: #fffbeb;
           border-radius: 0.5rem;
           flex-wrap: wrap;
+          cursor: pointer;
+          border: 2px solid transparent;
+          transition: all 0.2s ease;
+        }
+
+        .word-row.active {
+          border-color: #f59e0b;
+          background: #fef9e7;
         }
 
         .word-row.completed {
           background: linear-gradient(135deg, #fef3c7, #fde68a);
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .word-row.completed .word-length,
+        .word-row.completed .hint-btn {
+          display: none;
+        }
+
+        .word-row.completed .letter-slots {
+          margin-bottom: 0.25rem;
         }
 
         .word-row.completed::after {
           content: '🍯';
           font-size: 1.2rem;
-          margin-left: 0.5rem;
         }
 
         .word-length {
@@ -922,19 +1111,27 @@ export default function LetterGriddleCookbook() {
           padding: 0.25rem 0.5rem;
           cursor: pointer;
           color: #b45309;
+          flex-shrink: 0;
         }
 
         .hint-btn:hover {
           background: #fde68a;
         }
 
-        .hints-panel {
-          background: #fef3c7;
-          padding: 0.75rem;
-          border-radius: 0.5rem;
-          margin-bottom: 1rem;
+        .hint-text {
+          width: 100%;
           font-size: 0.85rem;
-          color: #78716c;
+          color: #b45309;
+          font-style: italic;
+          padding: 0.25rem 0.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .word-row-content {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          width: 100%;
         }
 
         .letter-pool-container {
@@ -986,7 +1183,7 @@ export default function LetterGriddleCookbook() {
         }
 
         .pool-letter.selected {
-          background: linear-gradient(135deg, #84cc16, #65a30d);
+          background: linear-gradient(135deg, #92400e, #b45309);
           color: white;
           transform: scale(1.15);
         }
@@ -994,24 +1191,28 @@ export default function LetterGriddleCookbook() {
         .shuffle-btn {
           display: block;
           margin: 0 auto;
-          background: #fbbf24;
+          background: linear-gradient(135deg, #fbbf24, #f59e0b);
           border: none;
-          padding: 0.5rem 1.25rem;
+          padding: 0.6rem 1.5rem;
           border-radius: 2rem;
           cursor: pointer;
           font-family: Georgia, serif;
-          color: #92400e;
+          color: white;
           font-weight: bold;
+          font-size: 0.95rem;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          transition: all 0.2s ease;
         }
 
         .shuffle-btn:hover {
-          background: #fcd34d;
+          background: linear-gradient(135deg, #fcd34d, #fbbf24);
+          transform: scale(1.05);
         }
 
         .puzzle-instructions {
           text-align: center;
           font-size: 0.8rem;
-          color: #a8a29e;
+          color: #8B5A2B;
           margin-bottom: 1rem;
         }
 
@@ -1035,15 +1236,66 @@ export default function LetterGriddleCookbook() {
           background: #fde68a;
         }
 
+        .celebration-overlay {
+          position: relative;
+          margin-top: 1rem;
+          overflow: hidden;
+          border-radius: 1rem;
+        }
+
+        .confetti-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          overflow: hidden;
+        }
+
+        .confetti {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          top: -10px;
+          border-radius: 2px;
+          animation: confetti-fall 3s ease-in-out infinite;
+        }
+
+        @keyframes confetti-fall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(200px) rotate(720deg);
+            opacity: 0;
+          }
+        }
+
         .completion-message {
           text-align: center;
-          background: linear-gradient(135deg, #d9f99d, #bef264);
-          padding: 1rem;
-          border-radius: 0.5rem;
-          margin-top: 1rem;
-          font-size: 1.2rem;
-          color: #365314;
-          font-weight: bold;
+          background: linear-gradient(135deg, #fef3c7, #fde68a);
+          padding: 2rem;
+          border-radius: 1rem;
+          border: 3px solid #f59e0b;
+        }
+
+        .completion-emoji {
+          font-size: 3rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .completion-message h3 {
+          font-family: 'Playfair Display', Georgia, serif;
+          color: #92400e;
+          font-size: 1.8rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .completion-message p {
+          color: #b45309;
+          font-size: 1.1rem;
         }
 
         /* Footer */
@@ -1062,6 +1314,33 @@ export default function LetterGriddleCookbook() {
         .footer-text {
           color: #fef3c7;
           font-size: 0.9rem;
+        }
+
+        .footer-social {
+          margin: 1rem 0;
+        }
+
+        .instagram-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+
+        .instagram-icon {
+          width: 1.1rem;
+          height: 1.1rem;
+        }
+
+        .footer-links {
+          margin: 0.75rem 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .footer-divider {
+          color: #d4a574;
         }
 
         .footer-link {
@@ -1103,7 +1382,7 @@ export default function LetterGriddleCookbook() {
         ) : (
           <>
             <div className="recipes-intro">
-              <h2>What's Cooking?</h2>
+              <h2>What&apos;s Cooking?</h2>
               <p>Choose a recipe to see the full details and play its themed puzzle!</p>
             </div>
             <div className="recipe-grid">
@@ -1125,8 +1404,21 @@ export default function LetterGriddleCookbook() {
         <p className="footer-text">
           Part of <a href="https://lettergriddle.com" className="footer-link">The Letter Griddle Games</a>
         </p>
+        <div className="footer-social">
+          <a href="https://instagram.com/letter_griddle" className="footer-link instagram-link" target="_blank" rel="noopener noreferrer">
+            <svg className="instagram-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            @letter_griddle
+          </a>
+        </div>
+        <div className="footer-links">
+          <a href="https://lettergriddle.com/privacy" className="footer-link">Privacy</a>
+          <span className="footer-divider">•</span>
+          <a href="https://lettergriddle.com/terms" className="footer-link">Terms</a>
+        </div>
         <p className="footer-copyright">
-          © 2025 Letter Griddle. <span className="footer-heart">💛</span>
+          © {new Date().getFullYear()} Letter Griddle. <span className="footer-heart">💛</span>
         </p>
       </footer>
     </div>
