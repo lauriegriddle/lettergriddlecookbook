@@ -430,9 +430,7 @@ function LetterGriddlePuzzle({ puzzle, category, recipeTitle }) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Letter Griddle Cookbook',
-          text: shareText,
-          url: 'https://lettergriddlecookbook.com'
+          text: shareText
         });
       } catch (err) {
         // User cancelled or share failed - fall back to clipboard
