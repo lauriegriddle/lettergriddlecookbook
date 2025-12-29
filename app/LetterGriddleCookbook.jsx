@@ -190,13 +190,14 @@ function generateLetterPool(words, revealed) {
 }
 
 // Puzzle Component
-function LetterGriddlePuzzle({ puzzle, category }) {
+function LetterGriddlePuzzle({ puzzle, category, recipeTitle }) {
   const [letterPool, setLetterPool] = useState([]);
   const [guesses, setGuesses] = useState(puzzle.words.map(() => []));
   const [selectedLetter, setSelectedLetter] = useState(null);
   const [completed, setCompleted] = useState(puzzle.words.map(() => false));
   const [revealedHints, setRevealedHints] = useState(puzzle.words.map(() => false));
   const [activeWordIndex, setActiveWordIndex] = useState(0);
+  const [shareStatus, setShareStatus] = useState(null); // 'copied' or null
 
   useEffect(() => {
     setLetterPool(generateLetterPool(puzzle.words, puzzle.revealed));
@@ -410,6 +411,7 @@ function LetterGriddlePuzzle({ puzzle, category }) {
     setRevealedHints(puzzle.words.map(() => false));
     setSelectedLetter(null);
     setActiveWordIndex(0);
+    setShareStatus(null);
   };
 
   const revealHint = (wordIndex) => {
@@ -418,6 +420,41 @@ function LetterGriddlePuzzle({ puzzle, category }) {
       newHints[wordIndex] = true;
       return newHints;
     });
+  };
+
+  // Share function
+  const handleShare = async () => {
+    const shareText = `I solved the ${recipeTitle} puzzle on Letter Griddle Cookbook! 🥞🍯☕\nlettergriddlecookbook.com`;
+    
+    // Try native share first (works on mobile and some desktop browsers)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Letter Griddle Cookbook',
+          text: shareText,
+          url: 'https://lettergriddlecookbook.com'
+        });
+      } catch (err) {
+        // User cancelled or share failed - fall back to clipboard
+        if (err.name !== 'AbortError') {
+          copyToClipboard(shareText);
+        }
+      }
+    } else {
+      // Fallback to clipboard for desktop browsers
+      copyToClipboard(shareText);
+    }
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareStatus('copied');
+      // Reset status after 2 seconds
+      setTimeout(() => setShareStatus(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
   const allCompleted = completed.every(c => c);
@@ -532,6 +569,9 @@ function LetterGriddlePuzzle({ puzzle, category }) {
             <h3>Delicious!</h3>
             <p>You solved the puzzle!</p>
             <div className="completion-buttons">
+              <button className="completion-btn share" onClick={handleShare}>
+                {shareStatus === 'copied' ? '✓ Copied!' : '📤 Share'}
+              </button>
               <button className="completion-btn primary" onClick={resetPuzzle}>
                 🔄 Play Again
               </button>
@@ -641,7 +681,7 @@ function RecipeDetail({ recipe, onBack }) {
             <p>{recipe.didYouKnow}</p>
           </div>
           
-          <LetterGriddlePuzzle puzzle={recipe.puzzle} category={recipe.category} />
+          <LetterGriddlePuzzle puzzle={recipe.puzzle} category={recipe.category} recipeTitle={recipe.title} />
         </div>
       </div>
     </div>
@@ -1236,11 +1276,18 @@ export default function LetterGriddleCookbook() {
           background: #fde68a;
         }
 
-        .celebration-overlay {
-          position: relative;
-          margin-top: 1rem;
-          overflow: hidden;
-          border-radius: 1rem;
+        /* Completion Modal Overlay */
+        .completion-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
         }
 
         .confetti-container {
@@ -1257,7 +1304,6 @@ export default function LetterGriddleCookbook() {
           position: absolute;
           width: 10px;
           height: 10px;
-          top: -10px;
           border-radius: 2px;
           animation: confetti-fall 3s ease-in-out infinite;
         }
@@ -1268,34 +1314,76 @@ export default function LetterGriddleCookbook() {
             opacity: 1;
           }
           100% {
-            transform: translateY(200px) rotate(720deg);
+            transform: translateY(100vh) rotate(720deg);
             opacity: 0;
           }
         }
 
-        .completion-message {
-          text-align: center;
+        .completion-modal {
           background: linear-gradient(135deg, #fef3c7, #fde68a);
-          padding: 2rem;
-          border-radius: 1rem;
-          border: 3px solid #f59e0b;
+          padding: 2.5rem;
+          border-radius: 1.5rem;
+          border: 4px solid #f59e0b;
+          text-align: center;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+          z-index: 1001;
+          max-width: 90%;
         }
 
         .completion-emoji {
-          font-size: 3rem;
+          font-size: 3.5rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .completion-modal h3 {
+          font-family: 'Playfair Display', Georgia, serif;
+          color: #92400e;
+          font-size: 2rem;
           margin-bottom: 0.5rem;
         }
 
-        .completion-message h3 {
-          font-family: 'Playfair Display', Georgia, serif;
-          color: #92400e;
-          font-size: 1.8rem;
-          margin-bottom: 0.25rem;
-        }
-
-        .completion-message p {
+        .completion-modal p {
           color: #b45309;
           font-size: 1.1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .completion-buttons {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .completion-btn {
+          padding: 0.75rem 1.5rem;
+          border-radius: 2rem;
+          font-family: Georgia, serif;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+        }
+
+        .completion-btn.primary {
+          background: linear-gradient(135deg, #92400e, #b45309);
+          color: white;
+        }
+
+        .completion-btn.primary:hover {
+          background: linear-gradient(135deg, #b45309, #d97706);
+          transform: scale(1.05);
+        }
+
+        .completion-btn.share {
+          background: linear-gradient(135deg, #fbbf24, #f59e0b);
+          color: #92400e;
+          font-weight: bold;
+        }
+
+        .completion-btn.share:hover {
+          background: linear-gradient(135deg, #fcd34d, #fbbf24);
+          transform: scale(1.05);
         }
 
         /* Footer */
