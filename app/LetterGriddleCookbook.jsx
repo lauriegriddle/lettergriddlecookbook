@@ -1327,7 +1327,8 @@ export default function LetterGriddleCookbook() {
           text-align: center;
           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
           z-index: 1001;
-          max-width: 90%;
+          max-width: 350px;
+width: 90%;
         }
 
         .completion-emoji {
