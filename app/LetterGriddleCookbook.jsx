@@ -528,7 +528,7 @@ function LetterGriddlePuzzle({ puzzle, category, recipeTitle }) {
           ))}
         </div>
         <button className="shuffle-btn" onClick={shuffleLetters}>
-          🔀 Shuffle
+          Shuffle
         </button>
       </div>
 
@@ -542,7 +542,7 @@ function LetterGriddlePuzzle({ puzzle, category, recipeTitle }) {
 
       {/* Reset button */}
       <button className="reset-btn" onClick={resetPuzzle}>
-        🔄 Reset Puzzle
+        Reset Puzzle
       </button>
 
      {/* Completion celebration modal - full screen */}
@@ -568,10 +568,10 @@ function LetterGriddlePuzzle({ puzzle, category, recipeTitle }) {
             <p>You solved the puzzle!</p>
             <div className="completion-buttons">
               <button className="completion-btn share" onClick={handleShare}>
-                {shareStatus === 'copied' ? '✓ Copied!' : '📤 Share'}
+                {shareStatus === 'copied' ? '✓ Copied!' : 'Share'}
               </button>
               <button className="completion-btn primary" onClick={resetPuzzle}>
-                🔄 Play Again
+                Play Again
               </button>
             </div>
           </div>
