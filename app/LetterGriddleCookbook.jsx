@@ -162,7 +162,16 @@ const recipes = [
         { pos: 3, letter: 'N' },
         { pos: 4, letter: 'I' }
       ]
-    }
+      }
+    },
+    {
+    id: 'orange-brunch',
+    emoji: '🍊',
+    title: 'Orange You Surprised It\'s For Brunch',
+    category: 'Coming Soon',
+    prepTime: '🔒',
+    serves: '🔒',
+    comingSoon: true
   }
 ];
 
@@ -583,8 +592,14 @@ function LetterGriddlePuzzle({ puzzle, category, recipeTitle }) {
 
 // Recipe Card Component
 function RecipeCard({ recipe, onClick }) {
+  const isComingSoon = recipe.comingSoon;
+  
   return (
-    <button className="recipe-card" onClick={onClick}>
+    <button 
+      className={`recipe-card ${isComingSoon ? 'coming-soon' : ''}`} 
+      onClick={isComingSoon ? undefined : onClick}
+      disabled={isComingSoon}
+    >
       <div className="recipe-card-emoji">{recipe.emoji}</div>
       <h3 className="recipe-card-title">{recipe.title}</h3>
       <p className="recipe-card-category">{recipe.category}</p>
