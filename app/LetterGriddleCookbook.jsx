@@ -165,14 +165,60 @@ const recipes = [
       }
     },
     {
-    id: 'orange-brunch',
-    emoji: '🍊',
-    title: 'Orange You Surprised It\'s For Brunch',
-    category: 'Coming Soon',
-    prepTime: '🔒',
-    serves: '🔒',
-    comingSoon: true
+  id: 'orange-brunch',
+  emoji: '🍊',
+  title: 'Orange You Surprised It\'s For Brunch',
+  category: 'Fresh & Fruity',
+  prepTime: '15 minutes',
+  chillTime: '2-4 hours',
+  serves: '8-10',
+  description: 'This no-bake dessert is light, creamy, and bursting with orange flavor and can be enhanced for a delicious brunch treat!',
+  ingredients: [
+    '1 box (3 oz) orange gelatin',
+    '1 box (3.4 oz) instant vanilla pudding',
+    '1 tub (8 oz) whipped topping',
+    '2 cans (15 oz each) mandarin oranges, drained',
+    '1 tbsp fresh orange zest'
+  ],
+  ingredientsSections: [
+    {
+      title: 'For the Brunch Version',
+      items: ['Vanilla yogurt', 'Granola cereal']
+    }
+  ],
+  instructions: [
+    { label: 'Prepare the gelatin', text: 'Dissolve the orange gelatin in 1 cup of boiling water, stirring until completely dissolved. Stir in 1/2 cup of cold water. Let cool to room temperature (about 15-20 minutes).' },
+    { label: 'Make the pudding base', text: 'In a large bowl, whisk the instant vanilla pudding mix into the cooled gelatin mixture. Whisk for about 2 minutes until it begins to thicken slightly.' },
+    { label: 'Fold in the whipped topping', text: 'Gently fold in the entire tub of whipped topping until the mixture is smooth and evenly combined.' },
+    { label: 'Add the oranges', text: 'Reserve a few mandarin segments and orange zest for garnish, then gently fold in the remaining drained mandarin oranges.' },
+    { label: 'Chill', text: 'Transfer to a serving bowl or individual dishes. Refrigerate for at least 2-4 hours until set.' },
+    { label: 'Serve', text: 'Garnish with reserved mandarin segments, a dollop of whipped cream, and a little extra zest if desired.' }
+  ],
+  tips: [
+    { label: 'Drain well', text: 'Drain the mandarins very well (pat dry with paper towels) to prevent excess liquid from thinning the mixture.' },
+    { label: 'Fluffier texture', text: 'For a fluffier texture, let the gelatin mixture thicken slightly in the fridge before folding in the whipped topping.' },
+    { label: 'Storage', text: 'This keeps well refrigerated for 2-3 days.' },
+    { label: 'Brunch twist', text: 'For a delicious brunch treat, add a dollop or two of vanilla yogurt and a generous sprinkle of granola to individual servings. Orange you surprised it\'s for brunch? 🍊' }
+  ],
+  didYouKnow: 'Mandarin oranges are an ancient, small, and sweet citrus fruit originating from Southeast Asia, known for their loose, easy-to-peel skin. Often symbolizing good fortune during Chinese New Year, they are a primary ancestor to many common citrus hybrids, including oranges, lemons, and grapefruit.',
+  puzzle: {
+    words: ['ZEST', 'AROMA', 'BRIGHT', 'SEGMENT', 'MANDARIN'],
+    hints: [
+      'Citrus skin shavings for garnish',
+      'Sweet-smelling fragrance',
+      'Vibrant orange color',
+      'A wedge of the fruit',
+      'Small, sweet, easy-to-peel orange'
+    ],
+    revealed: [
+      { pos: 0, letter: 'Z' },
+      { pos: 2, letter: 'O' },
+      { pos: 2, letter: 'I' },
+      { pos: 3, letter: 'M' },
+      { pos: 4, letter: 'A' }
+    ]
   }
+}
 ];
 
 // Generate letters for a puzzle (excluding revealed letters)
