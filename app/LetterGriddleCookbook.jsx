@@ -77,6 +77,7 @@ const recipes = [
   },
   {
     id: 'breakfast-casserole',
+    badge: 'Even Better!',
     emoji: '🍳',
     title: 'Breakfast Casserole',
     category: 'Ultimate Comfort',
@@ -100,7 +101,12 @@ const recipes = [
       'Preheat oven to 350° and bake for 40-45 minutes or until edges are brown.',
       'Cut into wedges and serve hot or room temperature.'
     ],
-    tip: 'The secret: Mix all ingredients, refrigerate overnight, then bake in the morning!',
+    tips: [
+  { label: 'The secret', text: 'Mix all ingredients, refrigerate overnight, then bake in the morning!' },
+  { label: 'Kosher salt', text: 'Use half a tsp of kosher salt for better flavor.' },
+  { label: 'Cheese', text: 'A cup of freshly grated cheese is good but 12 oz might be better!' },
+  { label: 'Bread', text: 'Use a very crusty dried out baguette for the perfect texture.' }
+],
     didYouKnow: 'Breakfast casseroles became popular in the 1950s when busy American families discovered the magic of "make-ahead" meals. The secret is letting it rest overnight so the bread soaks up all those delicious flavors while you sleep!',
     puzzle: {
       words: ['EGGS', 'BAKED', 'CHEESE', 'SAUSAGE', 'OVERNIGHT'],
@@ -646,6 +652,7 @@ function RecipeCard({ recipe, onClick }) {
       onClick={isComingSoon ? undefined : onClick}
       disabled={isComingSoon}
     >
+      {recipe.badge && <span className="recipe-badge">{recipe.badge}</span>}
       <div className="recipe-card-emoji">{recipe.emoji}</div>
       <h3 className="recipe-card-title">{recipe.title}</h3>
       <p className="recipe-card-category">{recipe.category}</p>
@@ -842,6 +849,7 @@ export default function LetterGriddleCookbook() {
         }
 
         .recipe-card {
+        position: relative;
           background: white;
           border: none;
           border-radius: 1.5rem;
@@ -885,6 +893,19 @@ export default function LetterGriddleCookbook() {
           color: #78716c;
           font-size: 0.85rem;
         }
+          .recipe-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.3rem 0.6rem;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
+  transform: rotate(12deg);
+}
 
         /* Recipe Detail */
         .recipe-detail {
