@@ -775,17 +775,30 @@ export default function LetterGriddleCookbook() {
           font-family: 'Georgia', serif;
         }
 
-        /* Header */
-        .cookbook-header {
-          background: linear-gradient(135deg, #92400e 0%, #b45309 50%, #d97706 100%);
-          padding: 2rem;
-          text-align: center;
-          box-shadow: 0 4px 20px rgba(146, 64, 14, 0.3);
-        }
+       .cookbook-header {
+  background: linear-gradient(160deg, #7c2d12 0%, #c2410c 40%, #ea580c 60%, #c2410c 80%, #7c2d12 100%);
+  padding: 2.5rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(194, 65, 12, 0.4);
+}
+.cookbook-header::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 160%;
+  background: radial-gradient(ellipse at center, rgba(251, 191, 36, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
 
         .header-content {
           max-width: 800px;
           margin: 0 auto;
+           position: relative;
         }
 
         .header-emoji {
@@ -796,12 +809,17 @@ export default function LetterGriddleCookbook() {
         }
 
         .header-title {
-          font-family: 'Playfair Display', Georgia, serif;
-          font-size: 2.5rem;
-          color: #fffbeb;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-          margin-bottom: 0.5rem;
-        }
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.8rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  background: linear-gradient(180deg, #fff7ed 0%, #fde68a 50%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.4)) drop-shadow(0 2px 4px rgba(120, 40, 0, 0.3));
+  margin-bottom: 0.5rem;
+}
 
         .header-tagline {
           color: #fef3c7;
