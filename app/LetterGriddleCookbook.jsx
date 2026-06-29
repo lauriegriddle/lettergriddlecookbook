@@ -224,7 +224,45 @@ const recipes = [
       { pos: 4, letter: 'A' }
     ]
   }
-}
+},
+{
+    id: 'independence-froth',
+    emoji: '🫐',
+    title: 'Independence Froth',
+    category: 'Fresh & Fruity',
+    prepTime: '5 minutes',
+    serves: '2 servings',
+    description: 'A patriotic pink smoothie bursting with summer fruit flavor perfect for July 4th or any sunny celebration!',
+    ingredients: [
+      '1 cup orange juice',
+      '½ cup frozen cherries',
+      '½ cup frozen red grapes',
+      '½ cup milk',
+      '1–2 tablespoons honey',
+      '1 teaspoon fresh lemon juice',
+      '1 teaspoon vanilla extract',
+      '1 cup ice cubes'
+    ],
+    instructions: [
+      'Blend the milk, vanilla, and honey on low for 10 seconds until honey dissolves.',
+      'Add the frozen cherries, frozen red grapes, orange juice, and fresh lemon juice.',
+      'Blend on high speed for 45 seconds to fully break down the grape skins.',
+      'Add the ice cubes and blend on high until thick, smooth, and a patriotic shade of pink!'
+    ],
+    tip: 'Adjust any of the ingredients to suit your tastes.',
+    didYouKnow: 'Adding coconut water or coconut flakes to tropical summer blends provides natural electrolytes and healthy omega-3 fatty acids, which studies suggest can naturally increase cognitive alertness.',
+    puzzle: {
+      words: ['MILK', 'LEMON', 'FROZEN', 'EXTRACT', 'BLENDING'],
+      hints: ['White liquid base', 'Bright citrus squeeze', 'Chilled fruit state', 'Flavor concentrate', 'How it all comes together'],
+      revealed: [
+        { pos: 2, letter: 'L' },
+        { pos: 0, letter: 'L' },
+        { pos: 3, letter: 'Z' },
+        { pos: 4, letter: 'A' },
+        { pos: 2, letter: 'E' }
+      ]
+    }
+  }
 ];
 
 // Generate letters for a puzzle (excluding revealed letters)
