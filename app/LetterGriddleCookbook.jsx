@@ -227,7 +227,7 @@ const recipes = [
 },
 {
     id: 'independence-froth',
-    emoji: '🫐',
+    emoji: '🍒',
     title: 'Independence Froth',
     category: 'Fresh & Fruity',
     prepTime: '5 minutes',
@@ -260,6 +260,43 @@ const recipes = [
         { pos: 3, letter: 'Z' },
         { pos: 4, letter: 'A' },
         { pos: 2, letter: 'E' }
+      ]
+    }
+  },
+  {
+    id: 'so-goods',
+    emoji: '🍨',
+    title: 'So-Goods',
+    category: 'Sweet Treats',
+    prepTime: '5 minutes',
+    serves: '1',
+    description: 'The ultimate ice cream sandwich experience dressed up with sauces, toppings, and whipped cream!',
+    ingredients: [
+      '1 ice cream sandwich',
+      '1–2 tbsp chocolate sauce',
+      '1–2 tbsp caramel sauce',
+      '1 tbsp M&M\'s',
+      '1 tbsp chocolate chips',
+      '1 tbsp chopped nuts (optional)',
+      'Whipped cream (aerosol works well)'
+    ],
+    instructions: [
+      'Prep the Sandwich: Place one unwrapped ice cream sandwich on a plate or dish.',
+      'Drizzle: Drizzle the chocolate and caramel sauces.',
+      'Sprinkle: Top with your M&M\'s, chocolate chips, and nuts.',
+      'Top: Add a generous mountain of whipped cream.',
+      'Serve: We know you will eat it immediately… before it melts!'
+    ],
+    didYouKnow: 'Americans consume an average of 48 ice cream sandwiches per second, with enough produced annually to circle the Earth 3.5 times.',
+    puzzle: {
+      words: ['PREP', 'SERVE', 'SAUCES', 'DRIZZLE', 'SPRINKLE'],
+      hints: ['Get it ready', 'Eat immediately!', 'Chocolate and caramel', 'Pour in a thin stream', 'Scatter on top'],
+      revealed: [
+        { pos: 1, letter: 'R' },
+        { pos: 3, letter: 'V' },
+        { pos: 0, letter: 'S' },
+        { pos: 4, letter: 'Z' },
+        { pos: 2, letter: 'R' }
       ]
     }
   }
